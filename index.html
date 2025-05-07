@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Tick計算機</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .arrow { cursor: pointer; transform: rotate(0deg); transition: transform 0.3s; width: 40px; }
+    .repeater-result { margin-top: 10px; white-space: pre-line; }
+  </style>
+</head>
+<body>
+  <h2>Tick計算機</h2>
+  <input type="number" id="input" placeholder="秒またはtick" step="0.05">
+  <img id="arrow" class="arrow" src="https://upload.wikimedia.org/wikipedia/commons/3/3c/White_arrow_right.svg">
+  <span id="unit">tick</span>
+  <div style="margin-top:10px;">
+    結果: <span id="output">-</span>
+  </div>
+  <div class="repeater-result" id="repeater">-</div>
+
+  <script>
+    let toTick = true;
+    const input = document.getElementById("input");
+    const output = document.getElementById("output");
+    const unit = document.getElementById("unit");
+    const arrow = document.getElementById("arrow");
+    const repeater = document.getElementById("repeater");
+
+    function calculate() {
+      const val = parseFloat(input.value);
+      if (isNaN(val)) {
+        output.textContent = "-";
+        repeater.textContent = "-";
+        return;
+      }
+
+      let ticks = toTick ? Math.round(val * 20) : val;
+      let result = toTick ? ticks : (ticks / 20).toFixed(2);
+      output.textContent = result;
+      unit.textContent = toTick ? "tick" : "秒";
+
+      // リピーター遅延計算
+      let remain = ticks;
+      let delays = [0, 0, 0, 0]; // 0遅延～3遅延
+      for (let delay = 3; delay >= 0; delay--) {
+        let step = delay + 1;
+        delays[delay] = Math.floor(remain / step);
+        remain -= delays[delay] * step;
+      }
+
+      let repeaterText = delays.map((count, i) =>
+        count > 0 ? `${i}遅延: ${count}` : ""
+      ).filter(s => s).join('\n');
+
+      repeater.textContent = repeaterText || "遅延での分解不可";
+    }
+
+    input.addEventListener("input", calculate);
+    arrow.addEventListener("click", () => {
+      toTick = !toTick;
+      arrow.style.transform = `rotate(${toTick ? 0 : 180}deg)`;
+      input.value = "";
+      output.textContent = "-";
+      repeater.textContent = "-";
+      unit.textContent = toTick ? "tick" : "秒";
+    });
+  </script>
+</body>
+</html>
